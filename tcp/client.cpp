@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
@@ -31,6 +32,11 @@ int main() {
     // 4) send message
     const char* message = "Hello server!";
     send(clientSocket, message, strlen(message), 0);
+
+    // 4.5) Recieve response from server
+    char buffer[100] = {0};
+    recv(clientSocket, buffer, sizeof(buffer), 0);
+    cout << "Message from server: " << buffer << endl;
 
     // 5) close client socket
     close(clientSocket);

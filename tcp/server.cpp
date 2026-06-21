@@ -26,8 +26,7 @@ void handleClient(int clientSocket) {
 
         cout << "Message from client: " << buffer << endl;
 
-        string response = "Server received: ";
-        response += buffer;
+        string response = "Hi Client, message recieved.";
 
         send(clientSocket, response.c_str(), response.size(), 0);
     }
