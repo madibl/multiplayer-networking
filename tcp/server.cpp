@@ -9,6 +9,7 @@
 using namespace std;
 
 int sharedCounter = 0;
+mutex counterMtx;
 
 void handleClient(int clientSocket) {
     // send data?
@@ -28,6 +29,9 @@ void handleClient(int clientSocket) {
 
         string command(buffer);
         if (command.find("INC") != string::npos) {
+            // lock it so no threads access at the same time
+            lock_guard<mutex> lock(counterMtx);
+
             // intentionally unsafe incrementation of counter
             int temp = sharedCounter;
             this_thread::sleep_for(chrono::microseconds(1));

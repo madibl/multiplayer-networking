@@ -1,16 +1,13 @@
-server:
-	rm -f *.o server
-	g++ server.cpp -o server
+TARGET ?= my_default_target
 
-client:
-	rm -f *.o client
-	g++ client.cpp -o client
+.PHONY: ${TARGET}
+
+${TARGET}:
+	g++ ${TARGET}.cpp -o build/${TARGET}
 
 all: 
-	rm -f *.o server
-	rm -f *.o client
-	g++ server.cpp -o server
-	g++ client.cpp -o client
+	g++ server.cpp -o build/server
+	g++ client.cpp -o build/client
 
 clean:
 	rm -f *.o server
