@@ -1,4 +1,2 @@
 # ignore object files
-*.o
-tcp/client
-tcp/server
+tcp/*.o
