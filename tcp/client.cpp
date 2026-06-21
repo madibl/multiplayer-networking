@@ -30,13 +30,18 @@ int main() {
         return 1;
     }
     // 4) send message
-    const char* message = "Hello server!";
-    send(clientSocket, message, strlen(message), 0);
+    const char* message = "INC";
+    const int numInc = 10000;
+    for (int i = 0; i < numInc; i++) {
+        send(clientSocket, message, strlen(message), 0);
 
-    // 4.5) Recieve response from server
-    char buffer[100] = {0};
-    recv(clientSocket, buffer, sizeof(buffer), 0);
-    cout << "Message from server: " << buffer << endl;
+        // 4.5) Recieve response from server
+        char buffer[128] = {0};
+        recv(clientSocket, buffer, sizeof(buffer), 0);
+        cout << buffer << endl;
+    }
+
+
 
     // 5) close client socket
     close(clientSocket);

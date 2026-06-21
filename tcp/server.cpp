@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// now we want to accept client -> create thread for that client
+int sharedCounter = 0;
 
 void handleClient(int clientSocket) {
     // send data?
@@ -24,11 +24,19 @@ void handleClient(int clientSocket) {
             break;
         }
 
-        cout << "Message from client: " << buffer << endl;
+        // cout << "Message from client: " << buffer << endl;
 
-        string response = "Hi Client, message recieved.";
+        string command(buffer);
+        if (command.find("INC") != string::npos) {
+            // intentionally unsafe incrementation of counter
+            int temp = sharedCounter;
+            this_thread::sleep_for(chrono::microseconds(1));
+            temp++;
+            sharedCounter = temp;
 
-        send(clientSocket, response.c_str(), response.size(), 0);
+            string response = "Counter: " + to_string(sharedCounter) + "\n";
+            send(clientSocket, response.c_str(), response.size(), 0);
+        }
     }
     close (clientSocket);
 }
