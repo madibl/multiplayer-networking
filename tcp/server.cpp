@@ -8,38 +8,81 @@
 
 using namespace std;
 
+// now we want to accept client -> create thread for that client
+
+void handleClient(int clientSocket) {
+    // send data?
+    char buffer[1024];
+
+    while (true) {
+        memset(buffer, 0, sizeof(buffer));
+
+        int bytesRecieved = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+
+        if (bytesRecieved <= 0) {
+            cout << "Client disconnected." << endl;
+            break;
+        }
+
+        cout << "Message from client: " << buffer << endl;
+
+        string response = "Server received: ";
+        response += buffer;
+
+        send(clientSocket, response.c_str(), response.size(), 0);
+    }
+    close (clientSocket);
+}
+ 
 int main() {
-    // 1) create server socket
+    // create server socket
     // AF_INET (IPV4 Protocol), SOCK_STREAM (TCP socket)
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSocket == -1) {
+        perror("socket failed");
+        return 1;
+    }
 
-    // 2) define server address
+    // set options for socket
+    int opt = 1;
+    setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    // define server address
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(8080); // htons() converts port to network byte order
     serverAddress.sin_addr.s_addr = INADDR_ANY; // accept any connections on any IP
 
 
-    // 3) bind the socket to the address
+    // bind the socket to the address
     if (::bind(serverSocket, (sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
         perror("bind failed");
         return 1;
     }
 
-    // 4) listen for connections
+    // listen for connections
     if (listen(serverSocket, 5) == -1) { // second number is the number that can be on the wailist
         perror("listen failed");
         return 1;
     }
-    // 5) accept client connection
-    int clientSocket = accept(serverSocket, nullptr, nullptr);
 
-    // 6) receive data from client
-    char buffer[1024] = {0};
-    recv(clientSocket, buffer, sizeof(buffer), 0); // reads data from clientSocket into buffer
-    cout << "Message from client: " << buffer << endl;
+    // open a thread 
+    while(true) {
+        // accept client connection
+        int clientSocket = accept(serverSocket, nullptr, nullptr);
 
-    // 7) close socket
+        if (clientSocket == -1) {
+            perror("accept failed");
+            continue;
+        }
+        
+        cout << "New client connected." << endl;
+
+        thread clientThread(handleClient, clientSocket);
+        clientThread.detach();
+    }
+
+    // close socket
     close(serverSocket);
 
     return 0;
